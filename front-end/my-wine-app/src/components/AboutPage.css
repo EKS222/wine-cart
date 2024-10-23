@@ -1,0 +1,70 @@
+/* AboutPage.css */
+
+.about-container {
+    max-width: 100%;
+    margin: 0 auto;
+    padding: 20px;
+  }
+  
+  .about-h1 {
+    font-size: 32px;
+    margin-bottom: 20px;
+    margin-top: 60px;
+    color: #B33939;
+    text-align:center;
+    
+  }
+  
+  .section {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+    margin: 20px 0;
+  }
+  
+  .text {
+    flex: 1;
+    text-align: left;
+  }
+  
+  .pair-image {
+    flex: 1;
+    text-align: right;
+    margin-top:250px;
+    margin-right:40px;
+    width:500px;
+  }
+  .recomm{
+    display: block; /* Ensure the image is a block-level element */
+    margin: 0 auto; /* Center the image horizontally */
+    width: 80%; /* Enlarge the image to 80% of its container width */
+    max-width: 400px;
+  }
+  
+  
+  h2 {
+    font-size: 24px;
+    margin-top: 40px;
+    color:#a66e6e;
+  }
+  
+  p {
+    font-size: 16px;
+    line-height: 1.5;
+    margin: 10px 0;
+    color: white;
+  }
+  
+  ul {
+    list-style-type: disc;
+    margin-left: 20px;
+    margin-top: 10px;
+  }
+  
+  li {
+    font-size: 16px;
+    line-height: 1.5;
+    color: white;
+  }
+  

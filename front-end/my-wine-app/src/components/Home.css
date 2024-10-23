@@ -1,0 +1,155 @@
+/* Header Styles */
+.headerf {
+    background-color:black;
+    text-align: center;
+    padding: 60px 0;
+  }
+  
+  .headerf h1 {
+    font-size: 36px;
+    color: #B33939;
+    margin-bottom: 10px;
+  }
+  .imgf{
+    width:100%;
+  }
+  .headerf p {
+    font-size: 18px;
+    color: #a66e6e;
+    margin-bottom: 20px;
+  }
+  
+  /* GIF Section Styles */
+  .gif {
+    text-align: center;
+    padding: 40px 0;
+    display: flex;
+    align-items: center;
+    justify-content: flex-end; /* Align content to the right */
+  
+  
+  
+  }
+  /* .text {
+    flex: 1;
+    padding: 20px;
+  } */
+  
+  .text p {
+    text-align: left; /* Align text to the right */
+    color:whitesmoke;
+    margin-top:100px;
+  }
+  
+  
+  .gif img {
+    width: 750px;
+    height: 750px;
+    margin-left:100px;
+    
+    
+  }
+  
+  /* Wine Gallery Styles */
+  .wine-galleryf {
+    background-color: #F8E5E5;
+    text-align: center;
+    padding: 60px 0;
+    overflow-x: hidden; /* Hide horizontal overflow */
+    white-space: nowrap; /* Prevent line break */
+  }
+  
+  
+  .wine-galleryf h2 {
+    font-size: 28px;
+    color: #B33939;
+    margin-bottom: 30px;
+  }
+  
+  /* Wine Category Styles */
+  
+  .wine-categoryf:hover {
+    transform: scale(1.02);
+  }
+  
+  .wine-category-imagef img {
+    width: 100%;
+    max-width: 200px;
+    height: auto;
+    border-radius: 8px;
+    padding:10px;
+  }
+  
+  .wine-categoryf h3 {
+    font-size: 24px;
+    color: #a66e6e;
+    margin: 15px 0;
+  }
+  
+  .wine-categoryf p {
+    font-size: 16px;
+    color: #444;
+  }
+  .wine-categoryf {
+    background-color: black;
+    border: 1px solid #E5E5E5;
+    border-radius: 8px;
+    padding: 20px;
+    margin: 20px;
+    box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
+    transition: transform 0.2s ease-in-out;
+    display: inline-block; /* Display horizontally */
+    white-space: normal; /* Allow text wrap inside wine-categoryf */
+    vertical-align: top; /* Align to the top to maintain uniform height */
+    margin-right: 20px; /* Add some spacing between items */
+    width: 220px; 
+    height: 450px;
+    flex-shrink: 0;
+    animation: moveLeftToRight 20s linear infinite;
+  }
+  
+  @keyframes moveLeftToRight {
+    0% {
+      transform: translateX(100%);
+    }
+    100% {
+      transform: translateX(-100%);
+    }
+  }
+  
+  @keyframes appearAndMoveLeft {
+    0%, 100% {
+      transform: translateX(0);
+    }
+    50% {
+      transform: translateX(-100%);
+    }
+  }
+  
+  
+  /* Apply animation and stagger start times */
+  .wine-categoryf:nth-child(1) {
+    animation: moveLeftToRight 20s linear infinite, wineCategoryStagger 20s linear infinite;
+  }
+  
+  .wine-categoryf:nth-child(2) {
+    animation: moveLeftToRight 20s linear infinite, wineCategoryStagger 20s linear infinite;
+  }
+  
+  .wine-categoryf:nth-child(3) {
+    animation: moveLeftToRight 20s linear infinite, wineCategoryStagger 20s linear infinite;
+  }
+  
+  .wine-categoryf:nth-child(4) {
+    animation: moveLeftToRight 20s linear infinite, wineCategoryStagger 20s linear infinite;
+  }
+  
+  /* Staggered start times */
+  @keyframes wineCategoryStagger {
+    0% {
+      animation-delay: 0s;
+    }
+    100% {
+      animation-delay: -20s; /* Delay equal to total animation duration */
+    }
+  }

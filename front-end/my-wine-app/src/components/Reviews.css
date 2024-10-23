@@ -1,0 +1,61 @@
+/* Reviews.css */
+.reviews-container {
+    position: relative;
+    height: 500px;
+    width: 600px;
+    padding: 20px;
+    align-self: center;
+    background-color: #f7f7f7;
+    border-radius: 5px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+  }
+  
+  .reviews-heading {
+    font-size: 24px;
+    margin-bottom: 20px;
+    text-align: center;
+  }
+  
+  .review-input textarea {
+    width: 578px;
+    padding: 10px;
+    margin-bottom: 10px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    margin-right: 20px;
+  }
+  
+  .add-review-button {
+    display: block;
+    margin: 0 auto;
+    padding: 10px 20px;
+    background-color: #a66e6e;
+    color: #fff;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+  }
+  
+  .add-review-button:hover {
+    background-color: #a66e6e;
+  }
+  
+  .review-list-heading {
+    font-size: 18px;
+    margin-top: 20px;
+  }
+  
+  .reviews {
+    list-style-type: none;
+    padding: 0;
+  }
+  
+  .review {
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    padding: 10px;
+    margin: 10px 0;
+    background-color: #fff;
+    color: black;
+  }
+  
