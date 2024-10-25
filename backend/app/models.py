@@ -13,6 +13,10 @@ class User(db.Model):
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
     updated_at = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
 
+    # Relationships
+    cart = db.relationship('Cart', uselist=False, backref='user')
+    reviews = db.relationship('Review', backref='user', lazy=True)
+
     @validates('username')
     def validate_username(self, key, username):
         if len(username) < 5:
@@ -42,48 +46,29 @@ class User(db.Model):
         return phonenumber
 
 
+
+
+
+# 2. Wine Model
 class Wine(db.Model):
     __tablename__ = 'wines'
     id = db.Column(db.Integer, primary_key=True)
-    name = db.Column(db.String(120), nullable=False)
-    image = db.Columnn(db.String(100), nullable = True)
-    description = db.Column(db.Text, nullable = True)
+    name = db.Column(db.String(100), nullable=False)
+    description = db.Column(db.Text, nullable=True)
     price = db.Column(db.Float, nullable=False)
-    category = db Column(db.String, nullable = False)
-    rating= db.Column(db.Float, default  = 0)
-    in_stock = db.Column(db Boolean, default = True)
-    created_at = db.Column(db.DateTime, default=datetime.utcnow)
-    carts = db.relationship('Cart', back_populates='wine', lazy=True)
+    image_url = db.Column(db.String(255), nullable=True)  # Matches JSX `img src`
+    category = db.Column(db.String(50), nullable=True)
+    rating = db.Column(db.Float, default=0)  # Average rating, updated with reviews
+    in_stock = db.Column(db.Boolean, default=True)
+    
+    # Relationships
     reviews = db.relationship('Review', backref='wine', lazy=True)
     cart_items = db.relationship('CartItem', backref='wine', lazy=True)
 
-
-class Cart(db.Model):
-    __tablename__ = 'carts'
-    id = db.Column(db.Integer, primary_key=True)
-    user_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False)
-    wine_id = db.Column(db.Integer, db.ForeignKey('wines.id'), nullable=False)
-    quantity = db.Column(db.Integer, default=1)
-    user = db.relationship('User', back_populates='cart')
-    wine = db.relationship('Wine', back_populates='carts')
-
-    def __init__(self, user_id, wine_id, quantity=1):
-        self.user_id = user_id
-        self.wine_id = wine_id
-        self.quantity = quantity
-
-class Review(db.Model):
-    __tablename__ = 'reviews'
-    id = db.Column(db.Integer, primary_key=True)
-    wine_id = db.Column(db.Integer, db.ForeignKey('wines.id'), nullable=False)
-    user_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False)
-    rating = db.Column(db.Integer, nullable=False)  # Rating out of 5
-    review_text = db.Column(db.Text, nullable=True)
-
     def __repr__(self):
-        return f"<Review {self.rating} for Wine {self.wine_id} by User {self.user_id}>"
-        
+        return f"<Wine {self.name}>"
 
+# 3. Cart Model
 class Cart(db.Model):
     __tablename__ = 'carts'
     id = db.Column(db.Integer, primary_key=True)
@@ -94,4 +79,27 @@ class Cart(db.Model):
 
     def __repr__(self):
         return f"<Cart {self.id} for User {self.user_id}>"
-        
+
+# 4. CartItem Model
+class CartItem(db.Model):
+    __tablename__ = 'cart_items'
+    id = db.Column(db.Integer, primary_key=True)
+    cart_id = db.Column(db.Integer, db.ForeignKey('carts.id'), nullable=False)
+    wine_id = db.Column(db.Integer, db.ForeignKey('wines.id'), nullable=False)
+    quantity = db.Column(db.Integer, default=1)
+
+    def __repr__(self):
+        return f"<CartItem {self.wine_id} in Cart {self.cart_id}>"
+
+# 5. Review Model
+class Review(db.Model):
+    __tablename__ = 'reviews'
+    id = db.Column(db.Integer, primary_key=True)
+    wine_id = db.Column(db.Integer, db.ForeignKey('wines.id'), nullable=False)
+    user_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False)
+    rating = db.Column(db.Integer, nullable=False)  # Rating out of 5
+    review_text = db.Column(db.Text, nullable=True)
+
+    def __repr__(self):
+        return f"<Review {self.rating} for Wine {self.wine_id} by User {self.user_id}>"
+    
