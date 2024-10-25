@@ -1,5 +1,5 @@
 from flask import jsonify, request, Blueprint
-from .models import db, User, Wine, Cart
+from .models import db, User, Wine, Cart, CartItem, Review
 from flask_bcrypt import Bcrypt
 from flask import current_app as app
 from flask_jwt_extended import jwt_required, get_jwt_identity
@@ -42,11 +42,9 @@ def get_all_users():
 def create_user():
     user_data = request.get_json()
 
-    # Validate required fields
     if not all(key in user_data for key in ('username', 'email', 'password')):
         return jsonify({'message': 'Username, email, and password are required'}), 400
 
-    # Check if user exists
     if User.query.filter_by(email=user_data['email']).first():
         return jsonify({'message': 'User with this email already exists'}), 400
 
@@ -107,7 +105,10 @@ def get_all_wines():
             'name': wine.name,
             'description': wine.description,
             'price': wine.price,
-            'created_at': wine.created_at
+            'rating': wine.rating,
+            'in_stock': wine.in_stock,
+            'image_url': wine.image_url,
+            'category': wine.category
         }
         for wine in wines
     ]
@@ -122,7 +123,10 @@ def create_wine():
     new_wine = Wine(
         name=wine_data['name'],
         description=wine_data.get('description'),
-        price=wine_data['price']
+        price=wine_data['price'],
+        category=wine_data.get('category'),
+        in_stock=wine_data.get('in_stock', True),
+        image_url=wine_data.get('image_url')
     )
     db.session.add(new_wine)
     db.session.commit()
@@ -140,6 +144,9 @@ def update_wine(wine_id):
         wine.name = wine_data.get('name', wine.name)
         wine.description = wine_data.get('description', wine.description)
         wine.price = wine_data.get('price', wine.price)
+        wine.category = wine_data.get('category', wine.category)
+        wine.in_stock = wine_data.get('in_stock', wine.in_stock)
+        wine.image_url = wine_data.get('image_url', wine.image_url)
         db.session.commit()
         return jsonify({'message': 'Wine updated successfully'}), 200
     return jsonify({'message': 'Wine not found'}), 404
@@ -166,14 +173,18 @@ def delete_wine(wine_id):
 @jwt_required()
 def get_cart_items():
     user_id = get_jwt_identity()
-    cart_items = Cart.query.filter_by(user_id=user_id).all()
+    cart = Cart.query.filter_by(user_id=user_id).first()
+
+    if not cart:
+        return jsonify({'message': 'Cart not found'}), 404
+
     serialized_cart = [
         {
             'id': item.id,
             'wine_id': item.wine_id,
             'quantity': item.quantity
         }
-        for item in cart_items
+        for item in cart.items
     ]
     return jsonify({'cart': serialized_cart}), 200
 
@@ -187,12 +198,17 @@ def add_to_cart():
     wine_id = cart_data['wine_id']
     quantity = cart_data.get('quantity', 1)
 
-    # Check if item is already in cart
-    cart_item = Cart.query.filter_by(user_id=user_id, wine_id=wine_id).first()
+    cart = Cart.query.filter_by(user_id=user_id).first()
+    if not cart:
+        cart = Cart(user_id=user_id)
+        db.session.add(cart)
+        db.session.commit()
+
+    cart_item = CartItem.query.filter_by(cart_id=cart.id, wine_id=wine_id).first()
     if cart_item:
         cart_item.quantity += quantity
     else:
-        cart_item = Cart(user_id=user_id, wine_id=wine_id, quantity=quantity)
+        cart_item = CartItem(cart_id=cart.id, wine_id=wine_id, quantity=quantity)
         db.session.add(cart_item)
 
     db.session.commit()
@@ -204,9 +220,9 @@ def add_to_cart():
 @jwt_required()
 def update_cart_item(cart_item_id):
     cart_data = request.get_json()
-    cart_item = Cart.query.get(cart_item_id)
+    cart_item = CartItem.query.get(cart_item_id)
 
-    if cart_item and cart_item.user_id == get_jwt_identity():
+    if cart_item and cart_item.cart.user_id == get_jwt_identity():
         cart_item.quantity = cart_data.get('quantity', cart_item.quantity)
         db.session.commit()
         return jsonify({'message': 'Cart item updated successfully'}), 200
@@ -217,9 +233,73 @@ def update_cart_item(cart_item_id):
 @routes.route('/cart/<int:cart_item_id>', methods=['DELETE'])
 @jwt_required()
 def delete_cart_item(cart_item_id):
-    cart_item = Cart.query.get(cart_item_id)
-    if cart_item and cart_item.user_id == get_jwt_identity():
+    cart_item = CartItem.query.get(cart_item_id)
+    if cart_item and cart_item.cart.user_id == get_jwt_identity():
         db.session.delete(cart_item)
         db.session.commit()
         return jsonify({'message': 'Cart item deleted successfully'}), 200
     return jsonify({'message': 'Cart item not found or unauthorized'}), 404
+
+
+# -------------------------
+# Review CRUD Operations
+# -------------------------
+
+# Get all reviews for a wine
+@routes.route('/wines/<int:wine_id>/reviews', methods=['GET'])
+def get_reviews(wine_id):
+    reviews = Review.query.filter_by(wine_id=wine_id).all()
+    serialized_reviews = [
+        {
+            'id': review.id,
+            'user_id': review.user_id,
+            'rating': review.rating,
+            'review_text': review.review_text
+        }
+        for review in reviews
+    ]
+    return jsonify({'reviews': serialized_reviews}), 200
+
+
+# Add a review for a wine
+@routes.route('/wines/<int:wine_id>/reviews', methods=['POST'])
+@jwt_required()
+def add_review(wine_id):
+    review_data = request.get_json()
+    new_review = Review(
+        wine_id=wine_id,
+        user_id=get_jwt_identity(),
+        rating=review_data['rating'],
+        review_text=review_data.get('review_text')
+    )
+    db.session.add(new_review)
+    db.session.commit()
+    return jsonify({'message': 'Review added successfully', 'review_id': new_review.id}), 201
+
+
+# Update a review
+@routes.route('/reviews/<int:review_id>', methods=['PUT'])
+@jwt_required()
+def update_review(review_id):
+    review_data = request.get_json()
+    review = Review.query.get(review_id)
+
+    if review and review.user_id == get_jwt_identity():
+        review.rating = review_data.get('rating', review.rating)
+        review.review_text = review_data.get('review_text', review.review_text)
+        db.session.commit()
+        return jsonify({'message': 'Review updated successfully'}), 200
+    return jsonify({'message': 'Review not found or unauthorized'}), 404
+
+
+# Delete a review
+@routes.route('/reviews/<int:review_id>', methods=['DELETE'])
+@jwt_required()
+def delete_review(review_id):
+    review = Review.query.get(review_id)
+    if review and review.user_id == get_jwt_identity():
+        db.session.delete(review)
+        db.session.commit()
+        return jsonify({'message': 'Review deleted successfully'}), 200
+    return jsonify({'message': 'Review not found or unauthorized'}), 404
+    
