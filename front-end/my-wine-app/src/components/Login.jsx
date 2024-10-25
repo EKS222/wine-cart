@@ -15,8 +15,8 @@ function Login() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     const url = formData.isRegistering
-      ? 'https://wine-backend.onrender.com/register'
-      : 'https://wine-backend.onrender.com/login';
+      ? 'api/register'
+      : 'api/login';
 
     try {
       const response = await fetch(url, {
