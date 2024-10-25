@@ -46,6 +46,7 @@ class Wine(db.Model):
     __tablename__ = 'wines'
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(120), nullable=False)
+    image = db.Coln(db.string(100), nullable = True)
     description = db.Column(db.Text, nullable=True)
     price = db.Column(db.Float, nullable=False)
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
