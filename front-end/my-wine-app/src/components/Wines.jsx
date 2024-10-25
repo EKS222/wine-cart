@@ -28,13 +28,22 @@ function Wines() {
   };
 
   return (
-    <div className="wine-list">
+    <div className="wine-category">
       {wines.length > 0 ? (
         wines.map((wine) => (
-          <div key={wine.id} className="wine-item">
+          <div key={wine.id} className="wine-category">
+            <div clasName="wine-category-image">
+              <img src="wine.image"/>
+            </div>
+            <div className="wine-details">
             <h3>{wine.name}</h3>
             <p>{wine.description}</p>
             <p><strong>Price:</strong> {wine.price}</p>
+            <div className="ratings">
+              <p>Rating: 3/5</p>
+              <StarRating rating={3} onRatingChange={handleRatingChange} />
+            </div>
+              <p>Reviews: 35</p>
             <button onClick={() => handleAddToCart(wine)}>Add to Cart</button>
             <a
               href={`https://wa.me/254791861308?text=I'm interested in ${wine.name}`}
@@ -44,6 +53,7 @@ function Wines() {
             >
               Order via WhatsApp
             </a>
+              </div>
           </div>
         ))
       ) : (
