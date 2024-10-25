@@ -41,30 +41,28 @@ class User(db.Model):
             raise ValueError('Phone number must be exactly 10 digits')
         return phonenumber
 
-class WineTypes(db.Model):
-    type_id = db.Column(db.Integer, primary_key=True)
-    type_name = db.Column(db.String, nullable=False)
 
-class Regions(db.Model):
-    region_id = db.Column(db.Integer, primary_key=True)
-    region_name = db.Column(db.String, nullable=False)
+class Wine(db.Model):
+    __tablename__ = 'wines'
+    id = db.Column(db.Integer, primary_key=True)
+    name = db.Column(db.String(120), nullable=False)
+    description = db.Column(db.Text, nullable=True)
+    price = db.Column(db.Float, nullable=False)
+    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+    carts = db.relationship('Cart', back_populates='wine', lazy=True)
 
-class Varietals(db.Model):
-    varietal_id = db.Column(db.Integer, primary_key=True)
-    varietal_name = db.Column(db.String, nullable=False)
-    region_name = db.Column(db.String)
 
-class Wines(db.Model):
-    wine_id = db.Column(db.Integer, primary_key=True)
-    name = db.Column(db.String, nullable=False)
-    type_id = db.Column(db.Integer, db.ForeignKey('wine_types.type_id'), nullable=False)
-    region_id = db.Column(db.Integer, db.ForeignKey('regions.region_id'), nullable=False)
-    description = db.Column(db.Text)
-    varietal_id = db.Column(db.Integer, db.ForeignKey('varietals.varietal_id'))
-    price = db.Column(db.Numeric, nullable=False)
-    user_rating = db.Column(db.Numeric)
-    user_id = db.Column(db.Integer, db.ForeignKey('user.id'))
-    user = db.relationship('User', backref='wines')
-    wine_type = db.relationship('WineTypes')
-    wine_varietal = db.relationship('Varietals')
-    wine_region = db.relationship('Regions')
+class Cart(db.Model):
+    __tablename__ = 'carts'
+    id = db.Column(db.Integer, primary_key=True)
+    user_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False)
+    wine_id = db.Column(db.Integer, db.ForeignKey('wines.id'), nullable=False)
+    quantity = db.Column(db.Integer, default=1)
+    user = db.relationship('User', back_populates='cart')
+    wine = db.relationship('Wine', back_populates='carts')
+
+    def __init__(self, user_id, wine_id, quantity=1):
+        self.user_id = user_id
+        self.wine_id = wine_id
+        self.quantity = quantity
+    
