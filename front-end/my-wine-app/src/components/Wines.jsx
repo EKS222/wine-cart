@@ -28,7 +28,7 @@ function Wines() {
   };
 
   return (
-    <div className="wine-category">
+    <div className="wine-gallery">
       {wines.length > 0 ? (
         wines.map((wine) => (
           <div key={wine.id} className="wine-category">
