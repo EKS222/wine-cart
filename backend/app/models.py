@@ -46,11 +46,16 @@ class Wine(db.Model):
     __tablename__ = 'wines'
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(120), nullable=False)
-    image = db.Coln(db.string(100), nullable = True)
-    description = db.Column(db.Text, nullable=True)
+    image = db.Columnn(db.String(100), nullable = True)
+    description = db.Column(db.Text, nullable = True)
     price = db.Column(db.Float, nullable=False)
+    category = db Column(db.String, nullable = False)
+    rating= db.Column(db.Float, default  = 0)
+    in_stock = db.Column(db Boolean, default = True)
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
     carts = db.relationship('Cart', back_populates='wine', lazy=True)
+    reviews = db.relationship('Review', backref='wine', lazy=True)
+    cart_items = db.relationship('CartItem', backref='wine', lazy=True)
 
 
 class Cart(db.Model):
@@ -66,4 +71,27 @@ class Cart(db.Model):
         self.user_id = user_id
         self.wine_id = wine_id
         self.quantity = quantity
+
+class Review(db.Model):
+    __tablename__ = 'reviews'
+    id = db.Column(db.Integer, primary_key=True)
+    wine_id = db.Column(db.Integer, db.ForeignKey('wines.id'), nullable=False)
+    user_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False)
+    rating = db.Column(db.Integer, nullable=False)  # Rating out of 5
+    review_text = db.Column(db.Text, nullable=True)
+
+    def __repr__(self):
+        return f"<Review {self.rating} for Wine {self.wine_id} by User {self.user_id}>"
+        
+
+class Cart(db.Model):
+    __tablename__ = 'carts'
+    id = db.Column(db.Integer, primary_key=True)
+    user_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False)
     
+    # Relationships
+    items = db.relationship('CartItem', backref='cart', lazy=True)
+
+    def __repr__(self):
+        return f"<Cart {self.id} for User {self.user_id}>"
+        
